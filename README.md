@@ -64,11 +64,11 @@ Analyze ./animation-demo.mov with motion detection enabled
 Simply provide a URL and the skill will automatically record the website:
 
 ```
-Analyze https://stripe.com
+Analyze stripe.com
 
-Record https://linear.app and extract the design system
+Record linear.app and extract the design system
 
-Analyze https://competitor.com in mobile dark mode
+Analyze competitor.com in mobile dark mode
 ```
 
 The recording captures:
@@ -76,6 +76,24 @@ The recording captures:
 - Hover states on interactive elements
 - Scroll through entire page content
 - Scroll-triggered animations
+
+### Browser Tab Extraction (Authenticated Sites)
+
+For sites requiring login, have the page open in your browser and ask the agent to analyze it:
+
+```
+Analyze my open browser tab
+
+Extract the design system from the tab I have open
+
+Look at this authenticated dashboard in my browser
+```
+
+This extracts:
+- Screenshots of the current view
+- CSS computed styles and design tokens
+- Page structure and components
+- Works with any authenticated session
 
 ### Static CSS Extraction
 
@@ -101,7 +119,8 @@ The skill activates when you mention:
 
 | Intent | Example Phrases |
 |--------|-----------------|
-| URL Recording | "Analyze https://...", "Record https://...", "What does https://... look like?" |
+| URL Recording | "Analyze stripe.com", "Record linear.app", "What does example.com look like?" |
+| Browser Tab | "Analyze my open tab", "Extract from my browser", "Look at this authenticated page" |
 | Full Analysis | "Analyze the recording...", "Extract specs from...", "What components does this app use?" |
 | Design System | "Extract the design system from...", "Get the colors/typography from...", "Export to Figma..." |
 | Comparison | "Compare ... with ...", "How does my app differ from...", "What's missing compared to..." |
@@ -110,6 +129,7 @@ The skill activates when you mention:
 ## Capabilities
 
 - **URL Recording**: Automatically record any website with simulated interactions
+- **Browser Tab Extraction**: Extract from authenticated sites open in your browser
 - **Full Analysis**: Extract complete implementation spec from a recording
 - **Design System Only**: Extract colors, typography, spacing for Figma export
 - **Comparison Mode**: Compare your app against a reference recording

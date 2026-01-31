@@ -20,7 +20,8 @@ Analyze screen recordings to extract implementation specs, design systems, compo
 - **Design System Only**: Extract just colors, typography, spacing for Figma export
 - **Comparison Mode**: Compare your app against a reference recording
 - **URL Recording**: Automatically record a website with simulated interactions
-- **Multiple Inputs**: Video files, screenshots, clipboard images, URLs, auto-detect recent recordings
+- **Chrome Tab Extraction**: Extract from authenticated sites open in Chrome (requires Chrome MCP)
+- **Multiple Inputs**: Video files, screenshots, clipboard images, URLs, Chrome tabs, auto-detect recent recordings
 - **Temporal Analysis**: Motion detection, animation extraction, and transition timing (optional)
 
 ## Quick Start
@@ -28,6 +29,9 @@ Analyze screen recordings to extract implementation specs, design systems, compo
 ```
 # Record and analyze a website (automatic recording from URL)
 Analyze https://stripe.com
+
+# Extract from an authenticated site open in Chrome
+Analyze my open Chrome tab (the user has the site open and logged in)
 
 # Extract design system from a URL
 Extract the design system from https://linear.app and export to Figma
@@ -76,13 +80,22 @@ macOS restricts terminal access to Desktop/Documents/Downloads unless the app ha
 
 Determine the input source:
 
-1. **URL provided** (starts with `http://` or `https://`): Record the website automatically
-2. **Explicit path provided**: Validate the file exists
-3. **No path provided**: Run `./scripts/detect-recording.sh` to find recent recordings
-4. **Screenshot/image**: Proceed directly to analysis (skip frame extraction)
-5. **Clipboard**: Save clipboard image to temp file, proceed to analysis
+1. **Browser tab requested**: User wants to analyze an open, authenticated tab → Use browser automation tools
+2. **URL provided**: Record the website automatically
+3. **Explicit path provided**: Validate the file exists
+4. **No path provided**: Run `./scripts/detect-recording.sh` to find recent recordings
+5. **Screenshot/image**: Proceed directly to analysis (skip frame extraction)
+6. **Clipboard**: Save clipboard image to temp file, proceed to analysis
 
-For URLs: Record the website and proceed to frame extraction
+**URL Detection:**
+Recognize URLs flexibly - they may or may not have `http://` or `https://`:
+- `stripe.com` → normalize to `https://stripe.com`
+- `www.example.com` → normalize to `https://www.example.com`
+- `https://app.linear.app` → use as-is
+- `myapp.io/dashboard` → normalize to `https://myapp.io/dashboard`
+
+Look for: domain extensions (`.com`, `.io`, `.app`, `.dev`, `.org`, `.net`), `www.`, or explicit `http`
+
 For video files, check the extension: `.mov`, `.mp4`, `.webm`, `.mkv`
 For images: `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`
 
@@ -131,6 +144,120 @@ When the user provides a URL, automatically record the website:
 ```
 
 After recording completes, proceed to Step 2 (Validate Video Duration) with the recorded video.
+
+### Step 1b: Browser Tab Extraction (Authenticated Sites)
+
+When the user wants to analyze a site they have open in their browser (e.g., authenticated dashboards, internal tools), use browser automation tools directly. This is ideal for:
+- Sites requiring login (Figma, Notion, internal dashboards)
+- Sites with bot detection that blocks automated recording
+- Capturing the exact state the user is viewing
+
+**Requirements:**
+- Browser automation capability (Chrome MCP, browser extension, or similar)
+- The target tab must be open in the browser
+
+**Workflow:**
+
+1. **Get tab context** - Find available tabs using your browser automation tools
+
+2. **Take screenshots** - Capture the current view and scroll to capture the full page
+
+3. **Record interactions** (optional) - For animations, use GIF recording if available:
+   - Start recording
+   - Scroll through the page
+   - Hover over interactive elements
+   - Stop and export
+
+4. **Extract CSS and design tokens** - Execute JavaScript to get computed styles:
+
+```javascript
+(function() {
+  const styles = {
+    colors: new Set(),
+    fonts: new Set(),
+    fontSizes: new Set(),
+    spacing: new Set(),
+    radii: new Set(),
+    shadows: new Set()
+  };
+
+  // Get all computed styles
+  document.querySelectorAll('*').forEach(el => {
+    const cs = getComputedStyle(el);
+
+    // Colors
+    ['color', 'backgroundColor', 'borderColor'].forEach(prop => {
+      const val = cs[prop];
+      if (val && val !== 'rgba(0, 0, 0, 0)' && val !== 'transparent') {
+        styles.colors.add(val);
+      }
+    });
+
+    // Typography
+    styles.fonts.add(cs.fontFamily);
+    styles.fontSizes.add(cs.fontSize);
+
+    // Spacing (from padding/margin)
+    ['padding', 'margin'].forEach(prop => {
+      const val = cs[prop];
+      if (val && val !== '0px') styles.spacing.add(val);
+    });
+
+    // Border radius
+    const radius = cs.borderRadius;
+    if (radius && radius !== '0px') styles.radii.add(radius);
+
+    // Shadows
+    const shadow = cs.boxShadow;
+    if (shadow && shadow !== 'none') styles.shadows.add(shadow);
+  });
+
+  // Get CSS custom properties (design tokens)
+  const cssVars = {};
+  for (const sheet of document.styleSheets) {
+    try {
+      for (const rule of sheet.cssRules) {
+        if (rule.selectorText === ':root' || rule.selectorText === 'html') {
+          for (const prop of rule.style) {
+            if (prop.startsWith('--')) {
+              cssVars[prop] = rule.style.getPropertyValue(prop).trim();
+            }
+          }
+        }
+      }
+    } catch (e) {} // Skip cross-origin stylesheets
+  }
+
+  return {
+    colors: [...styles.colors].slice(0, 50),
+    fonts: [...styles.fonts].slice(0, 10),
+    fontSizes: [...styles.fontSizes].slice(0, 20),
+    spacing: [...styles.spacing].slice(0, 20),
+    radii: [...styles.radii].slice(0, 10),
+    shadows: [...styles.shadows].slice(0, 10),
+    cssVariables: cssVars
+  };
+})()
+```
+
+5. **Read page structure** - Get the accessibility tree or DOM structure to identify components
+
+6. **Scroll and capture multiple views** - For full page analysis:
+   - Scroll down incrementally
+   - Take screenshot at each scroll position
+   - Repeat until full page is captured
+
+**Combining with visual analysis:**
+- Screenshots from browser automation can be analyzed just like extracted video frames
+- Use the same analysis prompts from `references/frame-analysis-prompt.md`
+- The CSS extraction provides exact values to complement visual analysis
+
+**Trigger phrases for browser tab mode:**
+- "Analyze my open tab"
+- "Extract from the tab I have open"
+- "Look at this authenticated page"
+- "Analyze what I'm looking at in my browser"
+- "Extract from my logged-in session"
 
 #### Handling Access Errors
 
@@ -437,6 +564,13 @@ Output format:
 
 ### Trigger Phrases
 
+**Chrome Tab (authenticated sites):**
+- "Analyze my open Chrome tab"
+- "Extract from the tab I have open"
+- "Look at this authenticated page in Chrome"
+- "Analyze what I'm looking at in my browser"
+- "Extract the design system from my open tab"
+
 **URL Recording (automatic):**
 - "Analyze https://..."
 - "Record https://... and extract the design system"
@@ -461,8 +595,14 @@ Output format:
 
 ### Input Detection
 
-**URL input** (starts with `http://` or `https://`):
-- Automatically run `./scripts/record-website.sh` to record the website
+**Browser tab request** (mentions "tab", "browser", "Chrome", "open page", "authenticated"):
+- Use browser automation tools if available (Chrome MCP, Playwright, etc.)
+- Take screenshots, extract CSS, read page structure
+- No recording needed - direct extraction from live page
+
+**URL input** (looks like a domain: contains `.com`, `.io`, `.app`, `www.`, or starts with `http`):
+- Normalize URL (add `https://` if missing)
+- Run `./scripts/record-website.sh` to record the website
 - Proceed to frame extraction and analysis
 
 **Local file input**:
