@@ -1,0 +1,31 @@
+{
+  "name": "website-extractor",
+  "version": "1.0.0",
+  "description": "Extract design systems from live websites using Playwright",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "extract-website": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "commander": "^11.1.0",
+    "chroma-js": "^2.4.2"
+  },
+  "keywords": [
+    "design-system",
+    "css-extraction",
+    "design-tokens",
+    "playwright",
+    "web-scraping"
+  ],
+  "author": "",
+  "license": "MIT"
+}

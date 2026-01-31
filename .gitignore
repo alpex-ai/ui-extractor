@@ -1,0 +1,46 @@
+# Extracted frames (generated during analysis)
+frames/
+output/
+*.frames/
+
+# Local recording symlinks (user-specific paths)
+.recordings
+.recordings-*
+
+# Copied recordings (user imports for analysis)
+recording.mov
+recording.mp4
+*.recording.mov
+*.recording.mp4
+
+# Temporary files
+*.tmp
+.tmp/
+temp/
+
+# macOS
+.DS_Store
+._*
+
+# Claude Code session data
+.claude/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node
+node_modules/
+lib/*/node_modules/
+lib/*/output/
+
+# Python (if any future tooling)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Test outputs
+test-output/

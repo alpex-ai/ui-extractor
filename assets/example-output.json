@@ -1,0 +1,509 @@
+{
+  "metadata": {
+    "source": "competitor-app-demo.mov",
+    "duration": 45,
+    "frameCount": 28,
+    "extractedAt": "2024-01-15T10:30:00Z",
+    "overallConfidence": "high"
+  },
+  "screens": [
+    {
+      "name": "Login Screen",
+      "frames": [1, 2, 3],
+      "purpose": "User authentication with email and password",
+      "elements": [
+        "Logo",
+        "Email input field",
+        "Password input field",
+        "Login button (primary)",
+        "Forgot password link",
+        "Sign up link"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "Dashboard",
+      "frames": [8, 9, 10, 11, 12],
+      "purpose": "Main overview with key metrics and recent activity",
+      "elements": [
+        "Top navigation bar",
+        "Sidebar navigation",
+        "Metric cards (4)",
+        "Activity feed",
+        "Quick action buttons"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "Settings Modal",
+      "frames": [20, 21, 22],
+      "purpose": "User preferences and account settings",
+      "elements": [
+        "Modal overlay",
+        "Tab navigation (Profile, Notifications, Security)",
+        "Form inputs",
+        "Save/Cancel buttons"
+      ],
+      "confidence": "high"
+    },
+    {
+      "name": "Loading State",
+      "frames": [4, 5, 6, 7],
+      "purpose": "Transition between login and dashboard",
+      "elements": [
+        "Centered spinner",
+        "Loading text"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "components": [
+    {
+      "type": "button",
+      "name": "Primary Button",
+      "variants": ["default", "hover", "disabled", "loading"],
+      "screens": ["Login Screen", "Dashboard", "Settings Modal"],
+      "description": "Rounded corners (8px), solid fill with primary color, white text, 14px medium weight",
+      "confidence": "high"
+    },
+    {
+      "type": "button",
+      "name": "Secondary Button",
+      "variants": ["default", "hover"],
+      "screens": ["Settings Modal"],
+      "description": "Rounded corners (8px), transparent with border, primary color text",
+      "confidence": "high"
+    },
+    {
+      "type": "input",
+      "name": "Text Input",
+      "variants": ["default", "focused", "error", "disabled"],
+      "screens": ["Login Screen", "Settings Modal"],
+      "description": "Rounded corners (8px), light border, 16px body text, placeholder in secondary color",
+      "confidence": "high"
+    },
+    {
+      "type": "card",
+      "name": "Metric Card",
+      "variants": ["default"],
+      "screens": ["Dashboard"],
+      "description": "White background, rounded corners (12px), subtle shadow, icon + number + label layout",
+      "confidence": "high"
+    },
+    {
+      "type": "navigation",
+      "name": "Sidebar Nav",
+      "variants": ["collapsed", "expanded"],
+      "screens": ["Dashboard"],
+      "description": "Vertical navigation with icons and labels, active state highlighted",
+      "confidence": "high"
+    },
+    {
+      "type": "modal",
+      "name": "Settings Modal",
+      "variants": ["default"],
+      "screens": ["Settings Modal"],
+      "description": "Centered overlay, white background, rounded corners (16px), close button top-right",
+      "confidence": "high"
+    },
+    {
+      "type": "feedback",
+      "name": "Loading Spinner",
+      "variants": ["default"],
+      "screens": ["Loading State"],
+      "description": "Circular spinner in primary color, centered with optional text below",
+      "confidence": "medium"
+    }
+  ],
+  "designSystem": {
+    "colors": {
+      "primary": {
+        "hex": "#3B82F6",
+        "rgb": "rgb(59, 130, 246)",
+        "usage": "Primary buttons, links, active states, focus rings",
+        "confidence": "high"
+      },
+      "secondary": {
+        "hex": "#8B5CF6",
+        "rgb": "rgb(139, 92, 246)",
+        "usage": "Secondary accents, hover states on secondary elements",
+        "confidence": "medium"
+      },
+      "background": {
+        "default": {
+          "hex": "#FFFFFF",
+          "usage": "Main page background",
+          "confidence": "high"
+        },
+        "paper": {
+          "hex": "#F9FAFB",
+          "usage": "Card backgrounds, elevated sections",
+          "confidence": "high"
+        },
+        "elevated": {
+          "hex": "#F3F4F6",
+          "usage": "Sidebar, header backgrounds",
+          "confidence": "high"
+        }
+      },
+      "text": {
+        "primary": {
+          "hex": "#111827",
+          "usage": "Headings, body text, primary labels",
+          "confidence": "high"
+        },
+        "secondary": {
+          "hex": "#6B7280",
+          "usage": "Captions, hints, secondary labels",
+          "confidence": "high"
+        },
+        "disabled": {
+          "hex": "#9CA3AF",
+          "usage": "Disabled text, placeholder text",
+          "confidence": "medium"
+        },
+        "inverse": {
+          "hex": "#FFFFFF",
+          "usage": "Text on dark/colored backgrounds",
+          "confidence": "high"
+        }
+      },
+      "border": {
+        "default": {
+          "hex": "#E5E7EB",
+          "usage": "Input borders, card borders, dividers",
+          "confidence": "high"
+        },
+        "focus": {
+          "hex": "#3B82F6",
+          "usage": "Focus rings, active input borders",
+          "confidence": "high"
+        }
+      },
+      "semantic": {
+        "success": {
+          "hex": "#10B981",
+          "usage": "Success messages, positive indicators",
+          "confidence": "medium"
+        },
+        "warning": {
+          "hex": "#F59E0B",
+          "usage": "Warning messages, caution indicators",
+          "confidence": "low"
+        },
+        "error": {
+          "hex": "#EF4444",
+          "usage": "Error messages, destructive actions",
+          "confidence": "high"
+        },
+        "info": {
+          "hex": "#3B82F6",
+          "usage": "Informational messages",
+          "confidence": "medium"
+        }
+      }
+    },
+    "typography": {
+      "fontFamilies": {
+        "heading": "Inter, system-ui, -apple-system, sans-serif",
+        "body": "Inter, system-ui, -apple-system, sans-serif",
+        "mono": "ui-monospace, SFMono-Regular, Menlo, monospace"
+      },
+      "styles": {
+        "h1": {
+          "fontSize": "36px",
+          "fontWeight": "700",
+          "lineHeight": "1.2",
+          "letterSpacing": "-0.02em",
+          "confidence": "medium"
+        },
+        "h2": {
+          "fontSize": "24px",
+          "fontWeight": "600",
+          "lineHeight": "1.3",
+          "confidence": "high"
+        },
+        "h3": {
+          "fontSize": "20px",
+          "fontWeight": "600",
+          "lineHeight": "1.4",
+          "confidence": "high"
+        },
+        "h4": {
+          "fontSize": "16px",
+          "fontWeight": "600",
+          "lineHeight": "1.4",
+          "confidence": "medium"
+        },
+        "body": {
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "lineHeight": "1.5",
+          "confidence": "high"
+        },
+        "bodySmall": {
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "lineHeight": "1.5",
+          "confidence": "high"
+        },
+        "caption": {
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "lineHeight": "1.4",
+          "confidence": "high"
+        },
+        "button": {
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "1",
+          "letterSpacing": "0.01em",
+          "confidence": "high"
+        },
+        "label": {
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "lineHeight": "1.4",
+          "confidence": "high"
+        }
+      }
+    },
+    "spacing": {
+      "unit": "4px",
+      "scale": {
+        "xs": {
+          "value": "4px",
+          "usage": "Tight gaps, icon padding",
+          "confidence": "medium"
+        },
+        "sm": {
+          "value": "8px",
+          "usage": "Small gaps, compact spacing",
+          "confidence": "high"
+        },
+        "md": {
+          "value": "16px",
+          "usage": "Standard gaps, component spacing",
+          "confidence": "high"
+        },
+        "lg": {
+          "value": "24px",
+          "usage": "Section spacing, card padding",
+          "confidence": "high"
+        },
+        "xl": {
+          "value": "32px",
+          "usage": "Large section gaps",
+          "confidence": "medium"
+        },
+        "2xl": {
+          "value": "48px",
+          "usage": "Page section dividers",
+          "confidence": "low"
+        }
+      },
+      "componentPadding": {
+        "button": {
+          "value": "12px 24px",
+          "confidence": "high"
+        },
+        "input": {
+          "value": "12px 16px",
+          "confidence": "high"
+        },
+        "card": {
+          "value": "24px",
+          "confidence": "high"
+        },
+        "modal": {
+          "value": "32px",
+          "confidence": "high"
+        }
+      },
+      "pageMargin": {
+        "value": "24px",
+        "confidence": "high"
+      },
+      "sectionGap": {
+        "value": "48px",
+        "confidence": "medium"
+      }
+    },
+    "radii": {
+      "none": {
+        "value": "0px",
+        "usage": "Sharp corners",
+        "confidence": "high"
+      },
+      "sm": {
+        "value": "4px",
+        "usage": "Small elements, badges",
+        "confidence": "medium"
+      },
+      "md": {
+        "value": "8px",
+        "usage": "Buttons, inputs, small cards",
+        "confidence": "high"
+      },
+      "lg": {
+        "value": "12px",
+        "usage": "Cards, containers",
+        "confidence": "high"
+      },
+      "xl": {
+        "value": "16px",
+        "usage": "Modals, large containers",
+        "confidence": "high"
+      },
+      "full": {
+        "value": "9999px",
+        "usage": "Pills, avatars, circular elements",
+        "confidence": "high"
+      }
+    },
+    "shadows": {
+      "sm": {
+        "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "usage": "Subtle elevation, buttons",
+        "confidence": "low"
+      },
+      "md": {
+        "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+        "usage": "Cards, elevated surfaces",
+        "confidence": "medium"
+      },
+      "lg": {
+        "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+        "usage": "Modals, dropdowns",
+        "confidence": "medium"
+      },
+      "xl": {
+        "value": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+        "usage": "Large modals, popovers",
+        "confidence": "low"
+      }
+    }
+  },
+  "flows": [
+    {
+      "name": "Login Flow",
+      "steps": [
+        {
+          "screen": "Login Screen",
+          "action": "User enters email and password"
+        },
+        {
+          "screen": "Login Screen",
+          "action": "User clicks Login button"
+        },
+        {
+          "screen": "Loading State",
+          "action": "System validates credentials"
+        },
+        {
+          "screen": "Dashboard",
+          "action": "Redirect to main dashboard on success"
+        }
+      ],
+      "triggers": ["button click", "form submit", "enter key"],
+      "confidence": "high"
+    },
+    {
+      "name": "Open Settings",
+      "steps": [
+        {
+          "screen": "Dashboard",
+          "action": "User clicks settings icon in nav"
+        },
+        {
+          "screen": "Settings Modal",
+          "action": "Modal opens with slide-up animation"
+        }
+      ],
+      "triggers": ["icon click"],
+      "confidence": "high"
+    }
+  ],
+  "interactions": {
+    "loadingStates": [
+      {
+        "component": "Primary Button",
+        "description": "Shows spinner icon, text changes to 'Loading...', button disabled",
+        "confidence": "high"
+      },
+      {
+        "component": "Page Transition",
+        "description": "Full-screen centered spinner during auth",
+        "confidence": "medium"
+      }
+    ],
+    "hoverStates": [
+      {
+        "component": "Primary Button",
+        "description": "Background darkens slightly, subtle scale transform",
+        "confidence": "medium"
+      },
+      {
+        "component": "Sidebar Nav Item",
+        "description": "Background highlight appears",
+        "confidence": "high"
+      }
+    ],
+    "animations": [
+      {
+        "type": "Modal",
+        "description": "Slide up from bottom with fade overlay",
+        "duration": "200-300ms",
+        "easing": "ease-out",
+        "confidence": "medium"
+      }
+    ]
+  },
+  "implementation": {
+    "componentHierarchy": [
+      {
+        "name": "App",
+        "children": [
+          {
+            "name": "AuthProvider",
+            "children": [
+              {
+                "name": "Router",
+                "children": [
+                  {"name": "LoginPage"},
+                  {"name": "DashboardLayout", "children": [
+                    {"name": "Sidebar"},
+                    {"name": "TopNav"},
+                    {"name": "MainContent"}
+                  ]}
+                ]
+              }
+            ]
+          },
+          {"name": "ModalProvider"},
+          {"name": "ToastProvider"}
+        ]
+      }
+    ],
+    "stateHints": [
+      "Auth state (logged in/out, loading)",
+      "Current user data",
+      "Modal open/closed state",
+      "Sidebar collapsed/expanded",
+      "Form validation states"
+    ],
+    "accessibility": [
+      {
+        "issue": "Color contrast on disabled text may be insufficient",
+        "recommendation": "Verify #9CA3AF on white meets WCAG AA",
+        "confidence": "medium"
+      }
+    ],
+    "recommendations": [
+      "Use CSS custom properties for design tokens",
+      "Implement button as composable component with size/variant props",
+      "Consider using a modal portal for proper stacking context",
+      "Add keyboard navigation support for sidebar"
+    ]
+  }
+}
