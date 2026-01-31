@@ -145,119 +145,85 @@ When the user provides a URL, automatically record the website:
 
 After recording completes, proceed to Step 2 (Validate Video Duration) with the recorded video.
 
-### Step 1b: Browser Tab Extraction (Authenticated Sites)
+### Step 1b: Browser Tab Recording (Authenticated Sites)
 
-When the user wants to analyze a site they have open in their browser (e.g., authenticated dashboards, internal tools), use browser automation tools directly. This is ideal for:
+When the user wants to analyze a site they have open in their browser (e.g., authenticated dashboards, internal tools), **record the tab as video/GIF**, then run it through the standard frame extraction pipeline. This is ideal for:
 - Sites requiring login (Figma, Notion, internal dashboards)
-- Sites with bot detection that blocks automated recording
-- Capturing the exact state the user is viewing
+- Sites with bot detection that blocks Playwright
+- Capturing the exact authenticated state the user is viewing
 
 **Requirements:**
-- Browser automation capability (Chrome MCP, browser extension, or similar)
+- Browser automation with screen recording (e.g., Chrome MCP gif_creator)
 - The target tab must be open in the browser
 
 **Workflow:**
 
-1. **Get tab context** - Find available tabs using your browser automation tools
+1. **Get tab context** - Find the target tab using browser automation
 
-2. **Take screenshots** - Capture the current view and scroll to capture the full page
+2. **Start screen recording:**
+   - Take an initial screenshot (captures first frame)
+   - Start GIF/video recording on the tab
 
-3. **Record interactions** (optional) - For animations, use GIF recording if available:
-   - Start recording
-   - Scroll through the page
-   - Hover over interactive elements
-   - Stop and export
+3. **Perform interactions while recording:**
+   - Scroll down through the full page
+   - Hover over buttons, links, interactive elements
+   - Click tabs or toggles if relevant
+   - Scroll back to top
+   - Take a final screenshot
 
-4. **Extract CSS and design tokens** - Execute JavaScript to get computed styles:
+4. **Stop and export recording:**
+   - Stop the recording
+   - Download/export the GIF to `./recordings/tab-recording.gif`
 
+5. **Run through standard pipeline:**
+```bash
+# Extract frames from the browser recording
+./scripts/extract-frames.sh ./recordings/tab-recording.gif ./frames --quality default
+
+# Then analyze frames as usual (Step 4)
+```
+
+6. **(Optional) Extract exact CSS values** - For precise design tokens, also run:
 ```javascript
 (function() {
-  const styles = {
-    colors: new Set(),
-    fonts: new Set(),
-    fontSizes: new Set(),
-    spacing: new Set(),
-    radii: new Set(),
-    shadows: new Set()
-  };
-
-  // Get all computed styles
+  const styles = { colors: new Set(), fonts: new Set(), fontSizes: new Set(), spacing: new Set(), radii: new Set(), shadows: new Set() };
   document.querySelectorAll('*').forEach(el => {
     const cs = getComputedStyle(el);
-
-    // Colors
     ['color', 'backgroundColor', 'borderColor'].forEach(prop => {
       const val = cs[prop];
-      if (val && val !== 'rgba(0, 0, 0, 0)' && val !== 'transparent') {
-        styles.colors.add(val);
-      }
+      if (val && val !== 'rgba(0, 0, 0, 0)' && val !== 'transparent') styles.colors.add(val);
     });
-
-    // Typography
     styles.fonts.add(cs.fontFamily);
     styles.fontSizes.add(cs.fontSize);
-
-    // Spacing (from padding/margin)
-    ['padding', 'margin'].forEach(prop => {
-      const val = cs[prop];
-      if (val && val !== '0px') styles.spacing.add(val);
-    });
-
-    // Border radius
     const radius = cs.borderRadius;
     if (radius && radius !== '0px') styles.radii.add(radius);
-
-    // Shadows
     const shadow = cs.boxShadow;
     if (shadow && shadow !== 'none') styles.shadows.add(shadow);
   });
-
-  // Get CSS custom properties (design tokens)
   const cssVars = {};
   for (const sheet of document.styleSheets) {
     try {
       for (const rule of sheet.cssRules) {
         if (rule.selectorText === ':root' || rule.selectorText === 'html') {
           for (const prop of rule.style) {
-            if (prop.startsWith('--')) {
-              cssVars[prop] = rule.style.getPropertyValue(prop).trim();
-            }
+            if (prop.startsWith('--')) cssVars[prop] = rule.style.getPropertyValue(prop).trim();
           }
         }
       }
-    } catch (e) {} // Skip cross-origin stylesheets
+    } catch (e) {}
   }
-
-  return {
-    colors: [...styles.colors].slice(0, 50),
-    fonts: [...styles.fonts].slice(0, 10),
-    fontSizes: [...styles.fontSizes].slice(0, 20),
-    spacing: [...styles.spacing].slice(0, 20),
-    radii: [...styles.radii].slice(0, 10),
-    shadows: [...styles.shadows].slice(0, 10),
-    cssVariables: cssVars
-  };
+  return { colors: [...styles.colors].slice(0, 50), fonts: [...styles.fonts].slice(0, 10), fontSizes: [...styles.fontSizes].slice(0, 20), radii: [...styles.radii].slice(0, 10), shadows: [...styles.shadows].slice(0, 10), cssVariables: cssVars };
 })()
 ```
 
-5. **Read page structure** - Get the accessibility tree or DOM structure to identify components
+**Key point:** The browser tab recording goes through the SAME frame extraction and analysis pipeline as URL recordings and local video files. The only difference is the capture source.
 
-6. **Scroll and capture multiple views** - For full page analysis:
-   - Scroll down incrementally
-   - Take screenshot at each scroll position
-   - Repeat until full page is captured
-
-**Combining with visual analysis:**
-- Screenshots from browser automation can be analyzed just like extracted video frames
-- Use the same analysis prompts from `references/frame-analysis-prompt.md`
-- The CSS extraction provides exact values to complement visual analysis
-
-**Trigger phrases for browser tab mode:**
+**Trigger phrases:**
 - "Analyze my open tab"
+- "Record my browser tab"
 - "Extract from the tab I have open"
-- "Look at this authenticated page"
-- "Analyze what I'm looking at in my browser"
-- "Extract from my logged-in session"
+- "Analyze this authenticated page in my browser"
+- "Record what I'm looking at"
 
 #### Handling Access Errors
 

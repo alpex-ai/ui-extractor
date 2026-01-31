@@ -77,23 +77,25 @@ The recording captures:
 - Scroll through entire page content
 - Scroll-triggered animations
 
-### Browser Tab Extraction (Authenticated Sites)
+### Browser Tab Recording (Authenticated Sites)
 
-For sites requiring login, have the page open in your browser and ask the agent to analyze it:
+For sites requiring login, have the page open in your browser and the agent will **record** it:
 
 ```
-Analyze my open browser tab
+Record my open browser tab
 
-Extract the design system from the tab I have open
+Analyze the tab I have open
 
-Look at this authenticated dashboard in my browser
+Record this authenticated dashboard
 ```
 
-This extracts:
-- Screenshots of the current view
-- CSS computed styles and design tokens
-- Page structure and components
-- Works with any authenticated session
+The agent will:
+1. Start screen recording on your open tab
+2. Scroll through the page, hover over elements
+3. Export the recording and extract frames
+4. Analyze using the same pipeline as URL recordings
+
+This works with any authenticated session - Figma, Notion, internal dashboards, etc.
 
 ### Static CSS Extraction
 
@@ -120,7 +122,7 @@ The skill activates when you mention:
 | Intent | Example Phrases |
 |--------|-----------------|
 | URL Recording | "Analyze stripe.com", "Record linear.app", "What does example.com look like?" |
-| Browser Tab | "Analyze my open tab", "Extract from my browser", "Look at this authenticated page" |
+| Browser Tab Recording | "Record my open tab", "Analyze the tab I have open", "Record this authenticated page" |
 | Full Analysis | "Analyze the recording...", "Extract specs from...", "What components does this app use?" |
 | Design System | "Extract the design system from...", "Get the colors/typography from...", "Export to Figma..." |
 | Comparison | "Compare ... with ...", "How does my app differ from...", "What's missing compared to..." |
