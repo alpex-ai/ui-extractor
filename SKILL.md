@@ -1,7 +1,9 @@
 ---
 name: video-to-code
 description: Analyze screen recordings and screenshots to extract implementation specs, design systems, and UI patterns. Use when asked to analyze a video/recording of an app, extract a design system from a demo, compare an app to a reference, or generate specs from visual input.
+license: MIT
 compatibility: Requires ffmpeg and ffprobe for video processing. Install with "brew install ffmpeg" on macOS.
+allowed-tools: Bash(ffmpeg:*) Bash(ffprobe:*) Bash(jq:*) Bash(node:*) Bash(npm:*) Bash(./scripts/*) Read Write
 metadata:
   author: alpex-ai
   version: "1.0.0"
@@ -17,20 +19,27 @@ Analyze screen recordings to extract implementation specs, design systems, compo
 - **Full Analysis**: Extract complete implementation spec from a recording
 - **Design System Only**: Extract just colors, typography, spacing for Figma export
 - **Comparison Mode**: Compare your app against a reference recording
-- **Multiple Inputs**: Video files, screenshots, clipboard images, auto-detect recent recordings
+- **URL Recording**: Automatically record a website with simulated interactions
+- **Multiple Inputs**: Video files, screenshots, clipboard images, URLs, auto-detect recent recordings
 - **Temporal Analysis**: Motion detection, animation extraction, and transition timing (optional)
 
 ## Quick Start
 
 ```
-# Analyze a recording (drag file into chat to get the path)
-Analyze the recording at /Users/me/Desktop/Screen Recording 2024-01-15.mov
+# Record and analyze a website (automatic recording from URL)
+Analyze https://stripe.com
 
-# Extract design system only
-Extract the design system from ~/Desktop/app-demo.mp4 and export to Figma
+# Extract design system from a URL
+Extract the design system from https://linear.app and export to Figma
+
+# Analyze a local recording (drag file into chat to get the path)
+Analyze the recording at /Users/me/Desktop/Screen Recording 2024-01-15.mov
 
 # Compare to reference
 Compare my app at ./my-app.mov with the reference at ./competitor.mov
+
+# Record in mobile mode
+Analyze https://mobile-app.com in mobile view
 ```
 
 ## Importing Recordings
@@ -67,13 +76,61 @@ macOS restricts terminal access to Desktop/Documents/Downloads unless the app ha
 
 Determine the input source:
 
-1. **Explicit path provided**: Validate the file exists
-2. **No path provided**: Run `./scripts/detect-recording.sh` to find recent recordings
-3. **Screenshot/image**: Proceed directly to analysis (skip frame extraction)
-4. **Clipboard**: Save clipboard image to temp file, proceed to analysis
+1. **URL provided** (starts with `http://` or `https://`): Record the website automatically
+2. **Explicit path provided**: Validate the file exists
+3. **No path provided**: Run `./scripts/detect-recording.sh` to find recent recordings
+4. **Screenshot/image**: Proceed directly to analysis (skip frame extraction)
+5. **Clipboard**: Save clipboard image to temp file, proceed to analysis
 
+For URLs: Record the website and proceed to frame extraction
 For video files, check the extension: `.mov`, `.mp4`, `.webm`, `.mkv`
 For images: `.png`, `.jpg`, `.jpeg`, `.webp`, `.gif`
+
+### Step 1a: Record Website (URL Input)
+
+When the user provides a URL, automatically record the website:
+
+```bash
+# Basic recording
+./scripts/record-website.sh "https://example.com" --output ./recording.webm
+
+# Mobile recording
+./scripts/record-website.sh "https://example.com" --output ./recording.webm --mobile
+
+# Dark mode recording
+./scripts/record-website.sh "https://example.com" --output ./recording.webm --dark-mode
+
+# Record and auto-extract frames
+./scripts/record-website.sh "https://example.com" --analyze --quality default
+```
+
+**Recording options:**
+- `--mobile`: Use mobile viewport (390x844)
+- `--dark-mode`: Enable dark mode for the recording
+- `--duration <secs>`: Max recording duration (default: 30)
+- `--scroll-steps <n>`: Number of scroll steps (default: 5)
+- `--browser <type>`: chromium (default) or firefox
+- `--analyze`: Auto-extract frames after recording
+- `--quality <level>`: Frame extraction quality when using --analyze
+
+**What the recording captures:**
+1. Initial page load and SPA hydration
+2. Hover interactions on buttons and links (triggers hover states)
+3. Smooth scroll through entire page content
+4. Return scroll to top (captures scroll-triggered animations)
+
+**Output:**
+```json
+{
+  "success": true,
+  "videoPath": "./recordings/example-com-20240115-143022.webm",
+  "framesDir": "./frames",
+  "frameCount": 28,
+  "ready": true
+}
+```
+
+After recording completes, proceed to Step 2 (Validate Video Duration) with the recorded video.
 
 #### Handling Access Errors
 
@@ -380,6 +437,12 @@ Output format:
 
 ### Trigger Phrases
 
+**URL Recording (automatic):**
+- "Analyze https://..."
+- "Record https://... and extract the design system"
+- "Extract specs from https://..."
+- "What does https://... look like?"
+
 **Full Analysis:**
 - "Analyze the recording at..."
 - "Extract specs from..."
@@ -398,7 +461,14 @@ Output format:
 
 ### Input Detection
 
-If no path is provided and user says something like:
+**URL input** (starts with `http://` or `https://`):
+- Automatically run `./scripts/record-website.sh` to record the website
+- Proceed to frame extraction and analysis
+
+**Local file input**:
+- Validate file exists and proceed to analysis
+
+**No path provided**:
 - "Analyze my latest recording" → Run detect-recording.sh
 - "Use the screen recording I just made" → Run detect-recording.sh
 - "Check the demo video" → Ask for path or run detect-recording.sh
@@ -449,7 +519,31 @@ command -v ffprobe && echo "ffprobe: OK" || echo "ffprobe: MISSING"
 
 ## Examples
 
-### Basic Analysis
+### URL Recording and Analysis
+```
+User: Analyze https://linear.app
+
+Agent:
+1. Detects URL input
+2. Records website: ./scripts/record-website.sh "https://linear.app" --analyze
+3. Captures page load, hover states, scroll interactions
+4. Auto-extracts frames from recording
+5. Analyzes frames for components, design system, flows
+6. Outputs implementation spec
+```
+
+### URL with Mobile/Dark Mode
+```
+User: Analyze https://stripe.com in mobile dark mode
+
+Agent:
+1. Records with mobile and dark mode flags
+2. ./scripts/record-website.sh "https://stripe.com" --mobile --dark-mode --analyze
+3. Extracts mobile-specific design tokens
+4. Outputs mobile implementation spec
+```
+
+### Basic Analysis (Local File)
 ```
 User: Analyze the recording at ~/Desktop/competitor-app.mov
 
@@ -483,9 +577,21 @@ Agent:
 3. Generates gap analysis with prioritized changes
 ```
 
+### URL Comparison
+```
+User: Compare my app at ./my-app.mov with https://competitor.com
+
+Agent:
+1. Records competitor website
+2. Analyzes competitor recording (establishes target)
+3. Analyzes user's app recording
+4. Generates gap analysis with prioritized changes
+```
+
 ## Output Files
 
 The skill may create these temporary files:
+- `./recordings/` - Website recordings (gitignored)
 - `./frames/` - Extracted video frames (gitignored)
 - `./frames/temporal-metadata.json` - Motion analysis data (when `--include-metadata`)
 - `./frames/diff_XXXX.jpg` - Diff frames (when `--include-diffs`)
@@ -493,7 +599,7 @@ The skill may create these temporary files:
 - `./output/design-system.json` - Extracted design system
 - `./output/implementation-spec.md` - Full implementation spec
 
-Clean up frames after analysis unless user requests to keep them.
+Clean up frames and recordings after analysis unless user requests to keep them.
 
 ## Reference Documents
 
