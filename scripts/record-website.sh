@@ -296,23 +296,32 @@ main() {
         RECORDER_ARGS+=("--json")
     fi
 
-    # Run the recorder
-    RESULT=$(node "$EXTRACTOR_DIR/recorder.js" "${RECORDER_ARGS[@]}" 2>&1)
-    RECORD_EXIT=$?
+    # Run the recorder - stderr goes to our stderr, stdout captured separately
+    if [ "$JSON_ONLY" = true ]; then
+        # In JSON mode, capture JSON output
+        RESULT=$(node "$EXTRACTOR_DIR/recorder.js" "${RECORDER_ARGS[@]}" 2>/dev/null)
+        RECORD_EXIT=$?
+    else
+        # In normal mode, let stderr pass through, capture stdout (video path)
+        node "$EXTRACTOR_DIR/recorder.js" "${RECORDER_ARGS[@]}"
+        RECORD_EXIT=$?
+    fi
 
     if [ $RECORD_EXIT -ne 0 ]; then
         log_error "Recording failed"
         if [ "$JSON_ONLY" = true ]; then
-            echo '{"success": false, "error": "Recording failed", "details": "'"$RESULT"'"}'
+            echo '{"success": false, "error": "Recording failed"}'
         fi
         exit 1
     fi
 
-    # Parse video path from result
-    if [ "$JSON_ONLY" = true ]; then
-        VIDEO_PATH=$(echo "$RESULT" | grep -o '"videoPath"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//;s/"$//' || echo "$OUTPUT")
-    else
-        VIDEO_PATH="$RESULT"
+    # Use the known output path (we specified it, so we know where the file is)
+    VIDEO_PATH="$OUTPUT"
+
+    # Verify the file was created
+    if [ ! -f "$VIDEO_PATH" ]; then
+        log_error "Recording file not created: $VIDEO_PATH"
+        exit 1
     fi
 
     log_info "Recording complete: $VIDEO_PATH"
