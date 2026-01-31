@@ -1,8 +1,8 @@
-# video-to-code
+# ui-extractor
 
-A Claude Code skill that analyzes screen recordings to extract implementation specs, design systems, and UI patterns.
+A Claude Code skill that analyzes screen recordings and websites to extract implementation specs, design systems, and UI patterns.
 
-[![Skills Library](https://img.shields.io/badge/skills.sh-video--to--code-blue)](https://skills.sh)
+[![Skills Library](https://img.shields.io/badge/skills.sh-ui--extractor-blue)](https://skills.sh)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
@@ -10,13 +10,13 @@ A Claude Code skill that analyzes screen recordings to extract implementation sp
 Install via the [Skills Library](https://skills.sh):
 
 ```bash
-npx skills add alpex-ai/video-to-code
+npx skills add alpex-ai/ui-extractor
 ```
 
 Or add directly to Claude Code:
 
 ```bash
-claude skills add https://github.com/alpex-ai/video-to-code
+claude skills add https://github.com/alpex-ai/ui-extractor
 ```
 
 ## Requirements
@@ -203,12 +203,12 @@ This skill follows the [Agent Skills](https://agentskills.io) format and works w
 ## File Structure
 
 ```
-video-to-code/
+ui-extractor/
 ├── SKILL.md              # Skill instructions (required)
 ├── README.md             # This file
 ├── LICENSE               # MIT License
 ├── scripts/              # Executable scripts
-│   ├── record-website.sh     # NEW: Record websites with Playwright
+│   ├── record-website.sh     # Record websites with Playwright
 │   ├── extract-frames.sh
 │   ├── detect-recording.sh
 │   ├── analyze-motion.sh
@@ -229,7 +229,7 @@ video-to-code/
 └── lib/                  # Node.js libraries
     └── website-extractor/
         ├── browser.js        # Browser automation with recording
-        ├── recorder.js       # NEW: Video recording CLI
+        ├── recorder.js       # Video recording CLI
         └── extractors/       # CSS extraction modules
 ```
 

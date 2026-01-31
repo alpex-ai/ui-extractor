@@ -1,5 +1,5 @@
 ---
-name: video-to-code
+name: ui-extractor
 description: Analyze screen recordings and screenshots to extract implementation specs, design systems, and UI patterns. Use when asked to analyze a video/recording of an app, extract a design system from a demo, compare an app to a reference, or generate specs from visual input.
 license: MIT
 compatibility: Requires ffmpeg and ffprobe for video processing. Install with "brew install ffmpeg" on macOS.
@@ -7,10 +7,10 @@ allowed-tools: Bash(ffmpeg:*) Bash(ffprobe:*) Bash(jq:*) Bash(node:*) Bash(npm:*
 metadata:
   author: alpex-ai
   version: "1.0.0"
-  repository: https://github.com/alpex-ai/video-to-code
+  repository: https://github.com/alpex-ai/ui-extractor
 ---
 
-# Video to Code
+# UI Extractor
 
 Analyze screen recordings to extract implementation specs, design systems, components, and user flows.
 
