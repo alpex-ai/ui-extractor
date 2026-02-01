@@ -1,22 +1,27 @@
 #!/bin/bash
-# record-website.sh - Record a website with simulated user interactions
-# Uses Playwright to navigate, scroll, hover, and capture video
+# record-website.sh - Record a website with full page scroll and interactions
+# Uses Playwright to navigate, scroll through entire page, hover elements, and capture video
 #
 # Usage: ./record-website.sh <url> [options]
 # Options:
-#   --output <file>      Output video path (default: ./recording.webm)
+#   --output <file>      Output video path (default: ./recordings/<domain>-<timestamp>.webm)
 #   --mobile             Use mobile viewport (390x844)
 #   --dark-mode          Enable dark mode
-#   --duration <secs>    Max recording duration (default: 30)
-#   --scroll-steps <n>   Number of scroll steps (default: 5)
-#   --click-buttons      Click interactive elements (careful!)
+#   --duration <secs>    Max recording duration (default: 60)
+#   --scroll-delay <ms>  Pause at each scroll position (default: 1200)
+#   --click-buttons      Click toggle elements (tabs, accordions)
 #   --browser <type>     chromium (default) or firefox
 #   --analyze            Auto-run frame extraction after recording
 #   --quality <level>    Frame extraction quality (low/default/high)
 #   --json-only          Output JSON only (no status messages)
 #
+# What it captures:
+#   - Full page scroll from top to bottom
+#   - Lazy-loaded content that appears on scroll
+#   - Hover states on buttons, links, cards
+#   - Scroll back to top (captures scroll-triggered animations)
+#
 # Output: Video file (webm format) with website recording
-# Status messages: stderr
 
 set -e
 
@@ -35,9 +40,8 @@ NC='\033[0m' # No Color
 OUTPUT=""
 MOBILE=false
 DARK_MODE=false
-DURATION=30
-SCROLL_STEPS=5
-SCROLL_DELAY=800
+DURATION=60
+SCROLL_DELAY=1200
 CLICK_BUTTONS=false
 BROWSER="chromium"
 ANALYZE=false
@@ -112,7 +116,7 @@ install_deps() {
 # Show help
 show_help() {
     cat << 'EOF'
-record-website.sh - Record a website with simulated user interactions
+record-website.sh - Record a website with full page scroll and interactions
 
 USAGE:
     ./record-website.sh <url> [options]
@@ -121,13 +125,12 @@ ARGUMENTS:
     <url>               URL of the website to record
 
 OPTIONS:
-    --output <file>     Output video path (default: ./recording.webm)
+    --output <file>     Output video path (default: ./recordings/<domain>-<timestamp>.webm)
     --mobile            Use mobile viewport (390x844)
     --dark-mode         Enable dark mode
-    --duration <secs>   Max recording duration in seconds (default: 30)
-    --scroll-steps <n>  Number of scroll steps (default: 5)
-    --scroll-delay <ms> Delay between scrolls in ms (default: 800)
-    --click-buttons     Click interactive elements (use with caution)
+    --duration <secs>   Max recording duration in seconds (default: 60)
+    --scroll-delay <ms> Pause at each scroll position in ms (default: 1200)
+    --click-buttons     Click toggle elements (tabs, accordions)
     --browser <type>    Browser engine: chromium (default) or firefox
     --analyze           Auto-run frame extraction after recording
     --quality <level>   Frame extraction quality: low, default, or high
@@ -135,7 +138,7 @@ OPTIONS:
     -h, --help          Show this help message
 
 EXAMPLES:
-    # Basic recording
+    # Record a website (scrolls entire page)
     ./record-website.sh https://stripe.com
 
     # Record to specific file
@@ -147,22 +150,14 @@ EXAMPLES:
     # Record and auto-analyze
     ./record-website.sh https://competitor.com --analyze --quality high
 
-    # Full workflow: record, extract frames, ready for analysis
-    ./record-website.sh https://target-app.com --output ./target.webm --analyze
-
-OUTPUT:
-    Outputs a WebM video file of the website with simulated interactions:
-    - Page load and hydration
-    - Hover over interactive elements (buttons, links)
-    - Smooth scroll through page content
-    - Scroll back to top
+WHAT IT CAPTURES:
+    - Full page scroll from top to bottom (not just hero)
+    - Lazy-loaded content that appears on scroll
+    - Hover states on buttons, links, cards
+    - Scroll back to top (scroll-triggered animations)
+    - Footer and all below-fold content
 
     With --analyze, also extracts frames for Claude analysis.
-
-WORKFLOW:
-    1. Records website interactions to video
-    2. (Optional) Extracts frames from video
-    3. Use frames with Claude for design system extraction
 
 EOF
 }
@@ -189,10 +184,6 @@ parse_args() {
                 ;;
             --duration)
                 DURATION="$2"
-                shift 2
-                ;;
-            --scroll-steps)
-                SCROLL_STEPS="$2"
                 shift 2
                 ;;
             --scroll-delay)
@@ -284,7 +275,6 @@ main() {
     fi
 
     RECORDER_ARGS+=("--duration" "$DURATION")
-    RECORDER_ARGS+=("--scroll-steps" "$SCROLL_STEPS")
     RECORDER_ARGS+=("--scroll-delay" "$SCROLL_DELAY")
     RECORDER_ARGS+=("--browser" "$BROWSER")
 
